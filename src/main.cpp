@@ -32,101 +32,90 @@ vec3 force_on(const body &A, const body &B) {
 }
 
 int main() {
-  InitWindow(800, 600, "2Body");
+  InitWindow(1600, 900, "2Body");
   SetTargetFPS(60);
 
-  body A{};
-  body B{};
+  // body A{};
+  // body B{};
 
-  A.position = vec3(200.0f, 300.0f, 0.0f);
-  A.velocity = vec3(0.0f);
-  A.acceleration = vec3(0.0f);
-  A.mass = 100000.0f;
-
-  B.position = vec3(600.0f, 300.0f, 0.0f);
-  B.velocity = vec3(0.0f, 10.0f, 0.0f);
-  B.acceleration = vec3(0.0f);
-  B.mass = 1000.0f;
+  // A.position = vec3(200.0f, 300.0f, 0.0f);
+  // A.velocity = vec3(0.0f);
+  // A.acceleration = vec3(0.0f);
+  // A.mass = 100000.0f;
+  //
+  // B.position = vec3(600.0f, 300.0f, 0.0f);
+  // B.velocity = vec3(0.0f, 10.0f, 0.0f);
+  // B.acceleration = vec3(0.0f);
+  // B.mass = 1000.0f;
 
   float dt = 0.05f;
 
-  /*
   int n = 1000;
 
   std::vector<body> bodies;
 
   for (int i = 0; i < n; i++) {
 
-      body a{};
+    body a{};
+    float x, y, z;
 
-      a.position = vec3(
-          rand() % 800,
-          rand() % 600,
-          rand() % 300
-      );
+    a.position = vec3(rand() % 800 + 400, rand() % 600 + 200, rand() % 300);
 
-      a.velocity = vec3(0.0f);
-      a.acceleration = vec3(0.0f);
+    a.velocity = vec3(0.0f);
+    a.acceleration = vec3(0.0f);
 
-      a.mass = 1000.0f;
+    a.mass = 1000.0f;
 
-      bodies.push_back(a);
+    bodies.push_back(a);
   }
-  */
 
   while (!WindowShouldClose()) {
 
-    vec3 force_A = force_on(A, B);
-
-    vec3 force_B = force_on(B, A);
-
-    A.acceleration = force_A / A.mass;
-
-    B.acceleration = force_B / B.mass;
-
-    A.velocity += A.acceleration * dt;
-
-    B.velocity += B.acceleration * dt;
-
-    A.position += A.velocity * dt;
-
-    B.position += B.velocity * dt;
-
-    /*
-    for (int i = 0; i < n; i++) {
-
-        bodies[i].acceleration = vec3(0.0f);
-
-        for (int j = 0; j < n; j++) {
-
-            if (i == j)
-                continue;
-
-            bodies[i].acceleration +=
-                force_on(bodies[i], bodies[j])
-                / bodies[i].mass;
-        }
-    }
-
+    // vec3 force_A = force_on(A, B);
+    //
+    // vec3 force_B = force_on(B, A);
+    //
+    // A.acceleration = force_A / A.mass;
+    //
+    // B.acceleration = force_B / B.mass;
+    //
+    // A.velocity += A.acceleration * dt;
+    //
+    // B.velocity += B.acceleration * dt;
+    //
+    // A.position += A.velocity * dt;
+    //
+    // B.position += B.velocity * dt;
+    //
 
     for (int i = 0; i < n; i++) {
 
-        bodies[i].velocity +=
-            bodies[i].acceleration * dt;
+      bodies[i].acceleration = vec3(0.0f);
 
-        bodies[i].position +=
-            bodies[i].velocity * dt;
+      for (int j = 0; j < n; j++) {
+
+        if (i == j)
+          continue;
+
+        bodies[i].acceleration +=
+            force_on(bodies[i], bodies[j]) / bodies[i].mass;
+      }
     }
-    */
+
+    for (int i = 0; i < n; i++) {
+
+      bodies[i].velocity += bodies[i].acceleration * dt;
+
+      bodies[i].position += bodies[i].velocity * dt;
+    }
 
     BeginDrawing();
 
     ClearBackground(BLACK);
 
-    // Draw A
-    DrawCircle((int)A.position.x, (int)A.position.y, 8, WHITE);
-
-    DrawCircle((int)B.position.x, (int)B.position.y, 8, WHITE);
+    for (int i = 0; i < n; i++) {
+      DrawPixel(bodies[i].position.x, bodies[i].position.y, WHITE);
+    }
 
     EndDrawing();
   }
