@@ -1,4 +1,3 @@
-
 #include <vector>
 
 class point {
@@ -11,6 +10,13 @@ public:
 
   double getX() const { return x; }
   double getY() const { return y; }
+
+  point operator+(const point &other) const {
+    return {x + other.x, y + other.y};
+  }
+
+  point operator*(double scalar) const { return {x * scalar, y * scalar}; }
+  point operator/(double scalar) const { return {x / scalar, y / scalar}; }
 };
 
 class rect {
@@ -23,6 +29,8 @@ private:
 public:
   rect(double _x, double _y, double _width, double _height)
       : x_start(_x), y_start(_y), width(_width), height(_height) {}
+
+  point relative_origin_for_box() { return {x_start, y_start}; }
 
   friend class node;
 };
@@ -40,6 +48,9 @@ private:
   node *sw;
   node *se;
 
+  point center_of_mass = {0, 0};
+  double totalMass{0};
+
 public:
   ~node() {
     delete nw;
@@ -47,6 +58,8 @@ public:
     delete sw;
     delete se;
   }
+
+  point coord(node &p) const { return p.points[0]; }
 
   node(rect _boundary)
       : boundary(_boundary), nw(nullptr), ne(nullptr), sw(nullptr),
@@ -117,6 +130,29 @@ public:
 
     // Insert new point.
     get_quadrant(p)->insert(p);
+  }
+
+  bool leaf(node &p) const { return p.nw == nullptr; }
+
+  point get_center_of_mass(node &p) const {
+
+    // if that node  is a leaf we get can do coords of
+    // base case:
+
+    if (leaf(p)) {
+      return {coord(p)};
+
+      // if the node is not a leaf we nw->find point coord take avg of all the
+
+    } else {
+
+      point nw_com = get_center_of_mass(*nw);
+      point ne_com = get_center_of_mass(*ne);
+      point sw_com = get_center_of_mass(*sw);
+      point se_com = get_center_of_mass(*se);
+
+      return (nw_com + ne_com + sw_com + se_com) / 4;
+    }
   }
 };
 
