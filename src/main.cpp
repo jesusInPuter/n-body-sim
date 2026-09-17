@@ -1,3 +1,4 @@
+#include "qtree.cpp"
 #include "raylib.h"
 #include <glm/detail/qualifier.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -8,6 +9,7 @@ using namespace glm;
 
 // constexpr double G = 6.67430e-11;
 constexpr float G = 1.0f;
+constexpr float theta = 0.3f;
 
 struct body {
   vec3 position;
@@ -17,136 +19,168 @@ struct body {
   float brightness;
 };
 
-vec3 force_on(const body &A, const body &B) {
-  vec3 displacement = B.position - A.position;
+vec3 force_by(node &p, const body &b) {
 
-  float r = length(displacement);
-
-  if (r < 0.0001f)
+  // empty node
+  if (p.empty()) {
     return vec3(0.0f);
+  }
 
-  float magnitude = (G * A.mass * B.mass) / (r * r);
+  // leaf calculate exact force
+  if (p.leaf()) {
 
-  vec3 direction = displacement / r;
+    point q = p.get_point();
 
-  return magnitude * direction;
+    vec3 other_position{static_cast<float>(q.getX()),
+                        static_cast<float>(q.getY()), 0.0f};
+
+    vec3 displacement = other_position - b.position;
+
+    float r = length(displacement);
+
+    if (r < 0.0001f) {
+      return vec3(0.0f);
+    }
+
+    float magnitude = G * b.mass * 1.0f / (r * r);
+
+    vec3 direction = displacement / r;
+
+    return magnitude * direction;
+  }
+
+  // Internal node
+
+  point com = p.get_center_of_mass();
+
+  vec3 com_position{static_cast<float>(com.getX()),
+                    static_cast<float>(com.getY()), 0.0f};
+
+  vec3 displacement = com_position - b.position;
+
+  float d = length(displacement);
+
+  float s = 1;
+
+  if (s / d < theta) {
+
+    float magnitude = G * b.mass * p.get_total_mass() / (d * d);
+
+    vec3 direction = displacement / d;
+
+    return magnitude * direction;
+  }
+
+  // if too close open the node
+  vec3 force{0.0f};
+
+  if (p.get_nw())
+    force += force_by(*p.get_nw(), b);
+
+  if (p.get_ne())
+    force += force_by(*p.get_ne(), b);
+
+  if (p.get_sw())
+    force += force_by(*p.get_sw(), b);
+
+  if (p.get_se())
+    force += force_by(*p.get_se(), b);
+
+  return force;
 }
 
+// vec3 force_on(const body &A, const body &B) {
+//   vec3 displacement = B.position - A.position;
+//
+//   float r = length(displacement);
+//
+//   if (r < 0.0001f)
+//     return vec3(0.0f);
+//
+//   float magnitude = (G * A.mass * B.mass) / (r * r);
+//
+//   vec3 direction = displacement / r;
+//
+//   return magnitude * direction;
+// }
+//
 int main() {
   InitWindow(1600, 900, "2Body");
   SetTargetFPS(60);
 
-  // body A{};
-  // body B{};
-
-  // A.position = vec3(200.0f, 300.0f, 0.0f);
-  // A.velocity = vec3(0.0f);
-  // A.acceleration = vec3(0.0f);
-  // A.mass = 100000.0f;
-  //
-  // B.position = vec3(600.0f, 300.0f, 0.0f);
-  // B.velocity = vec3(0.0f, 10.0f, 0.0f);
-  // B.acceleration = vec3(0.0f);
-  // B.mass = 1000.0f;
   float dt = 0.05f;
-
-  int n = 1000;
+  int n = 10'000;
 
   std::vector<body> bodies;
+  bodies.reserve(n);
 
-  body sun{};
-  sun.position = vec3(800.0f, 450.0f, 0.0f);
-  sun.velocity = vec3(0.0f);
-  sun.acceleration = vec3(0.0f);
-  sun.mass = 100000.0f;
-  sun.brightness = 1;
+  vec3 center(800.0f, 450.0f, 0.0f);
 
-  bodies.push_back(sun);
-  for (int i = 0; i < 1000; i++) {
+  float max_radius = 400.0f;
 
-    float angle = ((float)rand() / RAND_MAX) * 2.0f * PI;
+  for (int i = 0; i < n; i++) {
+    float u = (float)rand() / RAND_MAX;
+    float v = (float)rand() / RAND_MAX;
 
-    float r = 100.0f + ((float)rand() / RAND_MAX) * 300.0f;
+    float r = max_radius * sqrt(u);
+    float angle = v * 2.0f * PI;
 
-    vec3 offset(cos(angle) * r, sin(angle) * r, 0.0f);
-
-    body p{};
-
-    p.brightness = 0.3f + ((float)rand() / RAND_MAX) * 0.7f;
-    p.position = sun.position + offset;
+    float x = cos(angle) * r;
+    float y = sin(angle) * r;
 
     vec3 tangent(-sin(angle), cos(angle), 0.0f);
 
-    float orbital_speed = sqrt(G * sun.mass / r);
+    float speed = 45.0f * sqrt(1.0f / (r + 50.0f)) * 20.0f;
 
-    p.velocity = tangent * orbital_speed;
+    speed += ((float)rand() / RAND_MAX - 0.5f) * 3.0f;
 
+    body p{};
+
+    p.position = center + vec3(x, y, 0.0f);
+    p.velocity = tangent * speed;
     p.acceleration = vec3(0.0f);
-
     p.mass = 1.0f;
+
+    p.brightness = 0.2f + 0.8f * (1.0f - r / max_radius);
 
     bodies.push_back(p);
   }
 
+  qtree qt(rect(0, 0, 1600, 900));
   while (!WindowShouldClose()) {
 
-    // vec3 force_A = force_on(A, B);
-    //
-    // vec3 force_B = force_on(B, A);
-    //
-    // A.acceleration = force_A / A.mass;
-    //
-    // B.acceleration = force_B / B.mass;
-    //
-    // A.velocity += A.acceleration * dt;
-    //
-    // B.velocity += B.acceleration * dt;
-    //
-    // A.position += A.velocity * dt;
-    //
-    // B.position += B.velocity * dt;
-    //
+    qt.clear();
 
-    for (int i = 0; i < n; i++) {
+    for (const auto &b : bodies)
+      qt.qinsert({b.position.x, b.position.y});
 
-      bodies[i].acceleration = vec3(0.0f);
+    for (auto &b : bodies)
+      b.acceleration = force_by(*qt.get_root(), b) / b.mass;
 
-      for (int j = 0; j < n; j++) {
-
-        if (i == j)
-          continue;
-
-        bodies[i].acceleration +=
-            force_on(bodies[i], bodies[j]) / bodies[i].mass;
-      }
-    }
-
-    for (int i = 0; i < n; i++) {
-
-      bodies[i].velocity += bodies[i].acceleration * dt;
-
-      bodies[i].position += bodies[i].velocity * dt;
+    for (auto &b : bodies) {
+      b.velocity += b.acceleration * dt;
+      b.position += b.velocity * dt;
     }
 
     BeginDrawing();
 
     ClearBackground(BLACK);
 
-    for (int i = 0; i < n; i++) {
-      DrawPixel(bodies[i].position.x, bodies[i].position.y, WHITE);
-      float b = bodies[i].brightness;
+    for (const auto &b : bodies) {
+      DrawPixel(b.position.x, b.position.y, WHITE);
 
-      Vector2 p = {bodies[i].position.x, bodies[i].position.y};
-      DrawCircleV(p, 10.0f, Fade(WHITE, 0.02f * b));
-      DrawCircleV(p, 7.0f, Fade(WHITE, 0.05f * b));
-      DrawCircleV(p, 4.0f, Fade(WHITE, 0.12f * b));
-      DrawCircleV(p, 1.5f, Fade(WHITE, b));
+      float brightness = b.brightness;
+      Vector2 p = {b.position.x, b.position.y};
+
+      DrawCircleV(p, 10.0f, Fade(WHITE, 0.02f * brightness));
+      DrawCircleV(p, 7.0f, Fade(WHITE, 0.05f * brightness));
+      DrawCircleV(p, 4.0f, Fade(WHITE, 0.12f * brightness));
+      DrawCircleV(p, 1.5f, Fade(WHITE, brightness));
     }
 
     EndDrawing();
   }
 
   CloseWindow();
-
   return 0;
 }

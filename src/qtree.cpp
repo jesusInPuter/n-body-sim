@@ -133,6 +133,16 @@ public:
   }
 
   bool leaf(node &p) const { return p.nw == nullptr; }
+  bool leaf() const { return nw == nullptr; }
+  bool empty() const { return points.empty() && nw == nullptr; }
+  point get_point() const { return points[0]; }
+  point get_center_of_mass() const { return center_of_mass; }
+  double get_total_mass() const { return totalMass; }
+
+  node *get_nw() const { return nw; }
+  node *get_ne() const { return ne; }
+  node *get_sw() const { return sw; }
+  node *get_se() const { return se; }
 
   point get_center_of_mass(node &p) const {
 
@@ -159,11 +169,19 @@ public:
 class qtree {
 private:
   node *root;
+  rect boundary;
 
 public:
-  qtree(rect box) : root(new node(box)) {}
+  qtree(rect box) : root(new node(box)), boundary(box) {}
 
   ~qtree() { delete root; }
 
   void qinsert(const point &p) { root->insert(p); }
+
+  void clear() {
+    delete root;
+    root = new node(boundary);
+  }
+
+  node *get_root() const { return root; }
 };
