@@ -1,3 +1,5 @@
+#pragma once
+#include "raylib.h"
 #include <vector>
 
 class point {
@@ -54,7 +56,22 @@ public:
     delete sw;
     delete se;
   }
+  void draw() const {
+    DrawRectangleLines(boundary.x_start, boundary.y_start, boundary.width,
+                       boundary.height, DARKGRAY);
 
+    if (nw)
+      nw->draw();
+
+    if (ne)
+      ne->draw();
+
+    if (sw)
+      sw->draw();
+
+    if (se)
+      se->draw();
+  }
   point coord(node &p) const { return p.points[0]; }
 
   node(rect _boundary)

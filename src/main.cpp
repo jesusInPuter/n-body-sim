@@ -9,7 +9,7 @@ using namespace glm;
 
 // constexpr double G = 6.67430e-11;
 constexpr float G = 1.0f;
-constexpr float theta = 0.1f;
+constexpr float theta = 0.3f;
 
 struct body {
   vec3 position;
@@ -105,7 +105,7 @@ vec3 force_by(node &p, const body &b) {
 // }
 //
 int main() {
-  InitWindow(1600, 900, "2Body");
+  InitWindow(1920, 1080, "2Body");
   SetTargetFPS(60);
 
   float dt = 0.05f;
@@ -146,7 +146,7 @@ int main() {
     bodies.push_back(p);
   }
 
-  qtree qt(rect(0, 0, 1600, 900));
+  qtree qt(rect(0, 0, 1920, 1080));
   while (!WindowShouldClose()) {
 
     qt.clear();
@@ -169,6 +169,7 @@ int main() {
     DrawText(TextFormat("Particles: %d", n), 10, 35, 20, WHITE);
     DrawText(TextFormat("Theta: %.2f", theta), 10, 60, 20, WHITE);
     DrawText(TextFormat("dt: %.3f", dt), 10, 85, 20, WHITE);
+    // qt.get_root()->draw();
     for (const auto &b : bodies) {
       DrawPixel(b.position.x, b.position.y, WHITE);
 
