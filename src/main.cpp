@@ -9,7 +9,7 @@ using namespace glm;
 
 // constexpr double G = 6.67430e-11;
 constexpr float G = 1.0f;
-constexpr float theta = 0.3f;
+constexpr float theta = 0.1f;
 
 struct body {
   vec3 position;
@@ -60,7 +60,7 @@ vec3 force_by(node &p, const body &b) {
 
   float d = length(displacement);
 
-  float s = 1;
+  float s = std::max(p.get_width(), p.get_height());
 
   if (s / d < theta) {
 
@@ -165,7 +165,10 @@ int main() {
     BeginDrawing();
 
     ClearBackground(BLACK);
-
+    DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, WHITE);
+    DrawText(TextFormat("Particles: %d", n), 10, 35, 20, WHITE);
+    DrawText(TextFormat("Theta: %.2f", theta), 10, 60, 20, WHITE);
+    DrawText(TextFormat("dt: %.3f", dt), 10, 85, 20, WHITE);
     for (const auto &b : bodies) {
       DrawPixel(b.position.x, b.position.y, WHITE);
 

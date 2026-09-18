@@ -38,16 +38,12 @@ public:
 class node {
 private:
   const int N_MAX = 1;
-
   std::vector<point> points;
-
   rect boundary;
-
   node *nw;
   node *ne;
   node *sw;
   node *se;
-
   point center_of_mass = {0, 0};
   double totalMass{0};
 
@@ -111,24 +107,24 @@ public:
       return;
     }
 
-    // Node has room.
+    // Node has room
     if (points.size() < N_MAX) {
       points.push_back(p);
       return;
     }
 
-    // Node is full.
+    // Node is full
     if (nw == nullptr) {
       subdivide();
     }
 
-    // Move existing point down.
+    // Move existing point down
     point old_point = points[0];
     points.clear();
 
     get_quadrant(old_point)->insert(old_point);
 
-    // Insert new point.
+    // Insert new point
     get_quadrant(p)->insert(p);
   }
 
@@ -164,6 +160,10 @@ public:
       return (nw_com + ne_com + sw_com + se_com) / 4;
     }
   }
+
+  double get_width() const { return boundary.width; }
+
+  double get_height() const { return boundary.height; }
 };
 
 class qtree {
