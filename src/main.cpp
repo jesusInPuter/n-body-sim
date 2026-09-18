@@ -32,7 +32,7 @@ vec3 force_on(const body &A, const body &B) {
 }
 
 int main() {
-  InitWindow(1600, 900, "2Body");
+  InitWindow(1920, 1080, "2Body");
   SetTargetFPS(60);
 
   // body A{};
