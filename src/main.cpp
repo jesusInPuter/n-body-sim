@@ -113,6 +113,9 @@ int main() {
 
     ClearBackground(BLACK);
 
+    DrawText(TextFormat("FPS: %d", GetFPS()), 10, 10, 20, WHITE);
+    DrawText(TextFormat("Particles: %d", n), 10, 35, 20, WHITE);
+    DrawText(TextFormat("dt: %.3f", dt), 10, 85, 20, WHITE);
     for (int i = 0; i < n; i++) {
       DrawPixel(bodies[i].position.x, bodies[i].position.y, WHITE);
     }
