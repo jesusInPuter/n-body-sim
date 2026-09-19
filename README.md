@@ -1,11 +1,16 @@
-raylib sim 
+# N-Body Simulation
 
-g++ -std=c++20 src/main.cpp src/renderer.cpp -o n_sim -lraylib
+A 2D N-body simulation written in C++, using a quadtree for spatial partitioning and Barnes-Hut approximation to efficiently calculate
+gravitational forces between particles.
 
-optimize and port > [!CAUTION]
-> opengl
+## naive approach @ 1000 particles
 
+https://github.com/jesusInPuter/n-body-sim/blob/master/assets/demo/brute_force_1k.mkv
 
-havent used rederer.cpp
+## barnes hut approximation @ 10,000 particles
 
-gotta remove it and sort the code
+https://github.com/jesusInPuter/n-body-sim/blob/master/assets/demo/qtree_10k.mkv
+
+## quadtree visualization @ 5000 particles
+
+https://github.com/jesusInPuter/n-body-sim/blob/master/assets/demo/qtree_visual_5k.mkv
