@@ -1,7 +1,4 @@
 
-
-https://github.com/user-attachments/assets/b4f90baa-f20c-4f11-9566-28f21b3d2e06
-
 # N-Body Simulation
 
 A 2D N-body simulation written in C++, using a quadtree for spatial partitioning and Barnes-Hut approximation to efficiently calculate gravitational forces between particles.
