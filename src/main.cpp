@@ -9,7 +9,7 @@ using namespace glm;
 
 // constexpr double G = 6.67430e-11;
 constexpr float G = 1.0f;
-constexpr float theta = 0.3f;
+constexpr float theta = 0.97f;
 
 struct body {
   vec3 position;
@@ -109,7 +109,7 @@ int main() {
   SetTargetFPS(60);
 
   float dt = 0.05f;
-  int n = 10'000;
+  int n = 50'00;
 
   std::vector<body> bodies;
   bodies.reserve(n);
@@ -169,7 +169,7 @@ int main() {
     DrawText(TextFormat("Particles: %d", n), 10, 35, 20, WHITE);
     DrawText(TextFormat("Theta: %.2f", theta), 10, 60, 20, WHITE);
     DrawText(TextFormat("dt: %.3f", dt), 10, 85, 20, WHITE);
-    // qt.get_root()->draw();
+    qt.get_root()->draw();
     for (const auto &b : bodies) {
       DrawPixel(b.position.x, b.position.y, WHITE);
 
